@@ -63,6 +63,12 @@ people = [
         "name": "John Doe",
         "age": 30,
         "email": "johndoe@example.com"
+    },
+    {
+        "uid": "08 11 33 3A",
+        "name": "Kevin Yun",
+        "age": 39,
+        "email": "kevinyun@example.com"
     }
 ]
 
@@ -102,7 +108,31 @@ def execute():
             return jsonify(person)
         else:
             print("UID not found")  # Log para depuração
-            return "UID not found", 404
+            return "UID Not Found", 404
+    except Exception as e:
+        print(f"Error: {str(e)}")  # Log de erro
+        return str(e), 500
+
+
+@app.route('/execute_dump', methods=['POST'])
+def execute_dump():
+    try:
+        # Usar o caminho completo do script pm3 para o segundo comando
+        result = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3", "-c",
+                                "hf mf dump -k /home/text/Documents/development/proxymark/hf-mf-key.bin -f teste.bin"], capture_output=True, text=True)
+
+        print(result.stdout)  # Log para depuração
+        
+        # Procurar e deletar o arquivo test.bin
+        find_command = "find /home -name test.bin -type f -delete"
+        find_result = subprocess.run(
+            find_command, shell=True, capture_output=True, text=True)
+        if find_result.returncode == 0:
+            print("Arquivo test.bin deletado com sucesso")
+        else:
+            print(f"Erro ao deletar arquivo: {find_result.stderr}")
+        
+        return result.stdout if result.stdout else "No output from command"
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
         return str(e), 500

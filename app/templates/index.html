@@ -10,12 +10,21 @@
 
 <body class="body">
     <h1 class="title">Execute Command</h1>
-    <form id="commandForm" class="form" action="{{ url_for('execute') }}" method="post">
-        <button type="submit" class="button">Execute Command</button>
-    </form>
-    <div id="output" class="output"></div>
+    <div class="form-container">
+        <form id="commandForm1" class="form" action="{{ url_for('execute') }}" method="post">
+            <button type="submit" class="button">Abrir Porta</button>
+        </form>
+        <form id="commandForm2" class="form" action="{{ url_for('execute_dump') }}" method="post">
+            <button type="submit" class="button">Clonar Cartão</button>
+        </form>
+    </div>
 
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <div id="output" class="output"></div>
+    <div id="loading" class="loading">
+        <div class="loader"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 
 </html>
