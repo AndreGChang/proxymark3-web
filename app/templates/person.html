@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -11,9 +11,54 @@
 <body class="body">
     <h1 class="title">Person Details</h1>
     <div class="person-details">
+        <img src="{{ person.photo_path }}" alt="elmo" class="image-avatar">
         <p><strong>Name:</strong> {{ person.name }}</p>
         <p><strong>Age:</strong> {{ person.age }}</p>
         <p><strong>Email:</strong> {{ person.email }}</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/person.js') }}"></script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/person.css') }}">
+</head>
+
+<body class="body">
+    <div class="container">
+        <div class="details-section">
+            <img src="{{ person.photo_path }}" alt="Foto" class="image-avatar">
+            <div class="info">
+                <p><strong>Nome:</strong> {{ person.name }} saddasad</p>
+                <p><strong>Idade:</strong> {{ person.age }}</p>
+                <p><strong>Email:</strong> {{ person.email }}</p>
+                <p><strong>UID:</strong> {{ person.uid }}</p>
+            </div>
+        </div>
+        <div class="json-section">
+            <pre>
+{
+    "age": {{ person.age }},
+    "email": "{{ person.email }}",
+    "name": "{{ person.name }}",
+    "uid": "{{ person.uid }}",
+    "photo_path": "{{ person.photo_path }}"
+}
+            </pre>
+        </div>
+    </div>
+    <div class="button-section">
+        <button onclick="executeCommand('openDoor')">Abrir Porta</button>
+        <button onclick="executeCommand('readCard')">Ler Cartão</button>
+        <button onclick="executeCommand('executeClone')">Execute Clone</button>
     </div>
 
     <script src="{{ url_for('static', filename='js/person.js') }}"></script>
