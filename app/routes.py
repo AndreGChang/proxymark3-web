@@ -1,5 +1,8 @@
 from flask import current_app as app, render_template, request, jsonify
 import subprocess
+import threading
+
+lock = threading.Lock()
 
 # Array de pessoas
 people = [
@@ -26,6 +29,7 @@ people = [
     }
 ]
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -34,56 +38,83 @@ def index():
 @app.route('/execute', methods=['POST'])
 def execute():
     try:
-        # Usar o caminho completo do script pm3
         result = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3","-c", "hf search"], capture_output=True, text=True)
 
-        # Verificar se a saída contém "UID" e retornar essa linha
         uid_line = ""
         for line in result.stdout.splitlines():
             if "UID" in line:
                 uid_line = line.strip()
                 break
 
-        print(f"UID line found: {uid_line}")  # Log para depuração
+        print(f"UID line found: {uid_line}")
 
-        # Extrair o UID da linha
         uid = uid_line.split(":")[1].strip() if uid_line else ""
-        print(f"Extracted UID: {uid}")  # Log para depuração
-        
+        print(f"Extracted UID: {uid}")
+
         uid_parts = uid.split()[:4]
         formatted_uid = " ".join(uid_parts)
-        print(f"Extracted and formatted UID: {formatted_uid}")  # Log para depuração
+        print(f"Extracted and formatted UID: {formatted_uid}")
 
-        #Cria arquivo com o UID da pessoa do cartão
         try:
             with open("uid_person.txt", "a") as file:
                 file.write(f"{formatted_uid}\n")
                 print("UID added to uid_person.txt")
         except Exception as file_error:
             print(f"Error writing to file: {str(file_error)}")
-    
-        # Verificar se o UID corresponde a uma pessoa
+
         person = next((p for p in people if p["uid"] == formatted_uid), None)
         print(person)
         if person:
-            print(f"Person found: {person}")  # Log para depuração
+            print(f"Person found: {person}")
             return jsonify(person)
         else:
-            print("UID not found")  # Log para depuração
-            return "UID Not Found", 404
+            print("UID not found")
+            return jsonify({"error": "UID Not Found"}), 404
     except Exception as e:
-        print(f"Error: {str(e)}")  # Log de erro
-        return str(e), 500
+        print(f"Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/execute_dump', methods=['POST'])
 def execute_dump():
     try:
-        # Usar o caminho completo do script pm3 para o segundo comando
-        result = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3", "-c", "hf mf dump -k /home/text/Documents/development/proxymark/hf-mf-key.bin -f dump/teste.bin"], capture_output=True, text=True)
 
-        print(result.stdout)  # Log para depuraçã
-        
+        result = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3", "-c","hf mf dump -k /home/text/Documents/development/proxymark/hf-mf-key.bin -f dump/teste.bin"], capture_output=True, text=True)
+
+        full_output = result.stdout
+        print(full_output)
+
+        part1_start = "[=] ................."
+        part1_end = "[+] time:"
+        part1_content = ""
+
+        if part1_start in full_output and part1_end in full_output:
+            part1_content = full_output.split(
+                part1_start)[-1].split(part1_end)[0].strip()
+
+        separator = "[=] -----+-----+-------------------------------------------------+-----------------"
+        part2_content = ""
+
+        separator_occurrences = full_output.split(separator)
+        print("Number of Separator Occurrences:", len(separator_occurrences))
+
+        if len(separator_occurrences) > 3:
+            # part2_content = separator + separator_occurrences[2] + separator + separator_occurrences[3].split(separator)[0].strip()
+            # part2_header = separator + separator_occurrences[1] + separator + separator_occurrences[1].split(separator)[0].strip()
+            
+            part2_header = "[=] -----+-----+-------------------------------------------------+-----------------\n[=]  sec | blk | data                                            | ascii           \n"
+
+            relevant_content = part2_header + separator + separator_occurrences[2] + separator + separator_occurrences[3]
+            part2_content = relevant_content.split("[+] Saved")[0].strip()
+
+            print("Part 2 Content:")
+            print(part2_content)  # Log de depuração para part2
+
+            # print("Part 2 Header:")
+            # print(part2_header)
+        else:
+            print("Separator not found enough times in the output.")
+
         # Defina o usuário que irá executar o comando
         user = "text"
 
@@ -93,22 +124,23 @@ def execute_dump():
             "-u", user,
             "find", "/home/text/dump", "-name", "test.bin", "-type", "f", "-delete"
         ]
-        
+
         # Procurar e deletar o arquivo test.bin
-        #find_command = "sudo -u findeuser find /home/text -name test.bin -type f -delete"
-        find_result = subprocess.run(find_command, capture_output=True, text=True)
-        
+        # find_command = "sudo -u findeuser find /home/text -name test.bin -type f -delete"
+        find_result = subprocess.run(
+            find_command, capture_output=True, text=True)
+
         if find_result.returncode == 0:
             print("Arquivo test.bin deletado com sucesso")
         else:
             print(f"Erro ao deletar arquivo: {find_result.stderr}")
-        
-        return result.stdout if result.stdout else "No output from command"
+
+        return jsonify({"part1": part1_content, "part2": part2_content}) if result.stdout else "No output from command"
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
         return str(e), 500
 
-    
+
 @app.route('/execute_clone', methods=['POST'])
 def execute_clone():
     try:
@@ -132,7 +164,7 @@ def execute_clone():
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
         return str(e), 500
-    
+
 
 @app.route('/person')
 def person():

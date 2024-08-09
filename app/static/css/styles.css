@@ -41,6 +41,36 @@
     border-radius: 5px;
 }
 
+.card-output {
+    display: flex;
+    justify-content: space-between;
+    /* Alterar para 'block' para que o conteúdo interno role corretamente */
+    max-height: 750px;
+    overflow-y: auto;
+    /* Adiciona o scroll vertical */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* .right-output {
+    border: 1px solid;
+} */
+
+.details-section {
+    display: flex;
+    align-items: center;
+}
+
+.info {
+    margin-left: 20px;
+}
+
+.json-section {
+    margin-top: 20px;
+}
+
 .form-container {
     width: 30%;
     display: flex;
