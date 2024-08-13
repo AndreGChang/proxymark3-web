@@ -14,10 +14,10 @@ people = [
         "photo_path": "/static/images/Minecraft-creeper.avif"
     },
     {
-        "uid": "08 11 33 3A",
-        "name": "Kevin Yun",
+        "uid": "E7 E1 9A 47",
+        "name": "Andre Chang",
         "age": 39,
-        "email": "kevinyun@example.com",
+        "email": "andrechangn@example.com",
         "photo_path": "/static/images/Minecraft-creeper.avif"
     },
     {
@@ -28,7 +28,6 @@ people = [
         "photo_path": "/static/images/Minecraft-creeper.avif"
     }
 ]
-
 
 @app.route('/')
 def index():
@@ -56,7 +55,7 @@ def execute():
         print(f"Extracted and formatted UID: {formatted_uid}")
 
         try:
-            with open("uid_person.txt", "a") as file:
+            with open("uid_person.txt", "w") as file:
                 file.write(f"{formatted_uid}\n")
                 print("UID added to uid_person.txt")
         except Exception as file_error:
@@ -78,9 +77,29 @@ def execute():
 @app.route('/execute_dump', methods=['POST'])
 def execute_dump():
     try:
+        
+        result_UID = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3","-c", "hf search"], capture_output=True, text=True)
+
+        uid_line = ""
+        for line in result_UID.stdout.splitlines():
+            if "UID" in line:
+                uid_line = line.strip()
+                break
+        uid = uid_line.split(":")[1].strip() if uid_line else ""
+        
+        uid_parts = uid.split()[:4]
+        formatted_uid = " ".join(uid_parts)
+        print(f"Extracted and formatted UID: {formatted_uid}")
+
+        try:
+            with open("uid_person.txt", "w") as file:
+                file.write(f"{formatted_uid}\n")
+                print("UID added to uid_person.txt")
+        except Exception as file_error:
+            print(f"Error writing to file: {str(file_error)}")
 
         result = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3", "-c","hf mf dump -k /home/text/Documents/development/proxymark/hf-mf-key.bin -f dump/teste.bin"], capture_output=True, text=True)
-
+    
         full_output = result.stdout
         print(full_output)
 
@@ -146,25 +165,83 @@ def execute_clone():
     try:
         # Ler o UID do arquivo uid_person.txt
         with open("uid_person.txt", "r") as file:
-            last_uid = file.readlines()[-1].strip()
+            last_uid = file.readlines()[-1].strip().replace(" ", "")
         print(f"Last UID from file: {last_uid}")
 
-        # Comando para clonar o cartão
-        clone_command = [
+        # Comando para clonar os dados do cartão
+        clone_command_data = [
             "/home/text/Documents/proxymark/proxmark3/pm3",
             "-c",
-            f"hf mf cload -f dump/test.bin -u {last_uid}"
+            f"hf mf restore -k /home/text/Documents/development/proxymark/hf-mf-key.bin -f dump/teste.bin"
+        ]
+        
+        # Executar o comando de restauração
+        subprocess.run(clone_command_data, check=True)
+        print("Dump restored successfully.")
+        
+        #===
+        
+        # Comando para alterar o UID do cartão
+        clone_command_uid = [
+            "/home/text/Documents/proxymark/proxmark3/pm3",
+            "-c",
+            f"hf mf csetuid -u {last_uid}"
         ]
 
-        clone_result = subprocess.run(
-            clone_command, capture_output=True, text=True)
-        print(clone_result.stdout)  # Log para depuração
+        # Executar o comando de alteração de UID
+        subprocess.run(clone_command_uid, check=True)
+        print("UID changed successfully.")
+        
+        #===
+        
+        # Verificação do cartão clonado
+        check_command = [
+            "/home/text/Documents/proxymark/proxmark3/pm3",
+            "-c",
+            "hf mf chk"
+        ]
 
-        return clone_result.stdout if clone_result.stdout else "No output from clone command"
+        result = subprocess.run(check_command, capture_output=True, text=True)
+        print(result.stdout)  # Output do comando
+        
+        return jsonify({"status": "Cloning successful", "result": result.stdout})
+        
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
-        return str(e), 500
+        return jsonify({"error": str(e)}), 500
 
+
+@app.route('/execute_wipe', methods=['POST'])
+def execute_wipe():
+    try:
+        # Comando para limpar o cartão usando o arquivo de chave fornecido
+        wipe_command = [
+            "/home/text/Documents/proxymark/proxmark3/pm3",
+            "-c",
+            "hf mf wipe -f /home/text/Documents/development/proxymark/hf-mf-key.bin"
+        ]
+
+        # Executar o comando de wipe
+        subprocess.run(wipe_command, check=True)
+        print("Card wiped successfully.")
+
+        # Comando para alterar o UID para 00000000
+        setuid_command = [
+            "/home/text/Documents/proxymark/proxmark3/pm3",
+            "-c",
+            "hf mf csetuid -u 00000000"
+        ]
+
+        # Executar o comando de alteração de UID
+        subprocess.run(setuid_command, check=True)
+        print("UID set to 00000000 successfully.")
+
+        # Retornar uma resposta de sucesso
+        return jsonify({"status": "Wipe and UID change successful"}), 200
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error during wipe or UID change: {str(e)}")
+        return jsonify({"error": "An error occurred during the wipe or UID change", "details": str(e)}), 500
 
 @app.route('/person')
 def person():

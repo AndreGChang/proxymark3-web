@@ -14,23 +14,26 @@
             <h1 class="title">Execute Command</h1>
             <div class="form-buttons">
                 <form id="commandForm1" class="form" action="{{ url_for('execute') }}" method="post">
-                    <button type="submit" class="button">Abrir Porta</button>
+                    <button type="submit" class="button">Open Door</button>
                 </form>
                 <form id="commandForm2" class="form" action="{{ url_for('execute_dump') }}" method="post">
-                    <button type="submit" class="button">Ler Cartão</button>
+                    <button type="submit" class="button">Read Card</button>
                 </form>
                 <form id="commandForm3" class="form" action="{{ url_for('execute_clone') }}" method="post">
                     <button type="submit" class="button">Execute Clone</button>
                 </form>
+                <form id="commandForm4" class="form" action="{{ url_for('execute_wipe') }}" method="post">
+                    <button type="submit" class="button">Wipe Card</button>
+                </form>
             </div>
         </div>
-            <div class="output_div">
-                <h4>Output</h4>
-                <div id="output" class="output"></div>
-                <div id="loading" class="loading">
-                    <div class="loader"></div>
-                </div>
+        <div class="output_div">
+            <h4>Output</h4>
+            <div id="output" class="output"></div>
+            <div id="loading" class="loading">
+                <div class="loader"></div>
             </div>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
