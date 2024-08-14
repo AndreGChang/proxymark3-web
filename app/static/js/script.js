@@ -14,7 +14,7 @@
 
 //         if (response.ok) {
 //             const data = await response.json();
-//             console.log(data);
+//             console.log('Data received:', data);
 
 //             if (data.error) {
 //                 document.getElementById('output').innerText = data.error;
@@ -42,8 +42,7 @@
 //                 // Adicionar a seção ao outputDiv
 //                 outputDiv.appendChild(section);
 
-//             } else {
-//                 // Este código trata as respostas JSON esperadas de outros endpoints
+//             } else if (url === '/execute') {
 //                 const outputDiv = document.getElementById('output');
 //                 const detailsSection = document.createElement('div');
 //                 detailsSection.className = 'details-section';
@@ -62,13 +61,13 @@
 //                 jsonSection.className = 'json-section';
 //                 jsonSection.innerHTML = `
 //                     <pre>
-//                         {
-//                             "age": ${data.age},
-//                             "email": "${data.email}",
-//                             "name": "${data.name}",
-//                             "uid": "${data.uid}",
-//                             "photo_path": "${data.photo_path}"
-//                         }
+// {
+//     "age": ${data.age},
+//     "email": "${data.email}",
+//     "name": "${data.name}",
+//     "uid": "${data.uid}",
+//     "photo_path": "${data.photo_path}"
+// }
 //                     </pre>
 //                 `;
 
@@ -76,6 +75,13 @@
 //                 outputDiv.innerHTML = ''; // Limpa conteúdo anterior (se aplicável)
 //                 outputDiv.appendChild(detailsSection);
 //                 outputDiv.appendChild(jsonSection);
+
+//             } else if (url === '/execute_clone' || url === '/execute_wipe') {
+//                 const outputDiv = document.getElementById('output');
+//                 outputDiv.innerHTML = `
+//                     <p><strong>Status:</strong> ${data.status}</p>
+//                     <pre>${JSON.stringify(data.result, null, 4)}</pre>
+//                 `;
 //             }
 //         } else {
 //             const result = await response.text();
@@ -89,6 +95,7 @@
 //     }
 // }
 
+// // Adicionando os eventos de submit aos formulários
 // document.getElementById('commandForm1').addEventListener('submit', function (event) {
 //     handleFormSubmit(event, '/execute');
 // });
@@ -123,8 +130,46 @@ async function handleFormSubmit(event, url) {
             const data = await response.json();
             console.log('Data received:', data);
 
-            if (data.error) {
-                document.getElementById('output').innerText = data.error;
+            if (url === '/execute') {
+                const outputDiv = document.getElementById('output');
+                
+                if (data.error_uid) {
+                    // Renderiza apenas o valor da chave "error_uid"
+                    const errorMessage = data.error_uid;
+                    outputDiv.innerText = errorMessage;
+                } else {
+                    const detailsSection = document.createElement('div');
+                    detailsSection.className = 'details-section';
+
+                    detailsSection.innerHTML = `
+                        <img src="${data.photo_path}" alt="Foto" class="image-avatar">
+                        <div class="info">
+                            <p><strong>Nome:</strong> ${data.name}</p>
+                            <p><strong>Idade:</strong> ${data.age}</p>
+                            <p><strong>Email:</strong> ${data.email}</p>
+                            <p><strong>UID:</strong> ${data.uid}</p>
+                        </div>
+                    `;
+
+                    const jsonSection = document.createElement('div');
+                    jsonSection.className = 'json-section';
+                    jsonSection.innerHTML = `
+                        <pre>
+                            {
+                                "age": ${data.age},
+                                "email": "${data.email}",
+                                "name": "${data.name}",
+                                "uid": "${data.uid}",
+                                "photo_path": "${data.photo_path}"
+                            }
+                        </pre>
+                    `;
+
+                    // Adicionar as seções ao outputDiv
+                    outputDiv.innerHTML = ''; // Limpa conteúdo anterior (se aplicável)
+                    outputDiv.appendChild(detailsSection);
+                    outputDiv.appendChild(jsonSection);
+                }
             } else if (url === '/execute_dump') {
                 const outputDiv = document.getElementById('output');
 
@@ -149,47 +194,16 @@ async function handleFormSubmit(event, url) {
                 // Adicionar a seção ao outputDiv
                 outputDiv.appendChild(section);
 
-            } else if (url === '/execute') {
-                const outputDiv = document.getElementById('output');
-                const detailsSection = document.createElement('div');
-                detailsSection.className = 'details-section';
-
-                detailsSection.innerHTML = `
-                    <img src="${data.photo_path}" alt="Foto" class="image-avatar">
-                    <div class="info">
-                        <p><strong>Nome:</strong> ${data.name}</p>
-                        <p><strong>Idade:</strong> ${data.age}</p>
-                        <p><strong>Email:</strong> ${data.email}</p>
-                        <p><strong>UID:</strong> ${data.uid}</p>
-                    </div>
-                `;
-
-                const jsonSection = document.createElement('div');
-                jsonSection.className = 'json-section';
-                jsonSection.innerHTML = `
-                    <pre>
-{
-    "age": ${data.age},
-    "email": "${data.email}",
-    "name": "${data.name}",
-    "uid": "${data.uid}",
-    "photo_path": "${data.photo_path}"
-}
-                    </pre>
-                `;
-
-                // Adicionar as seções ao outputDiv
-                outputDiv.innerHTML = ''; // Limpa conteúdo anterior (se aplicável)
-                outputDiv.appendChild(detailsSection);
-                outputDiv.appendChild(jsonSection);
-
             } else if (url === '/execute_clone' || url === '/execute_wipe') {
                 const outputDiv = document.getElementById('output');
                 outputDiv.innerHTML = `
                     <p><strong>Status:</strong> ${data.status}</p>
-                    <pre>${JSON.stringify(data.result, null, 4)}</pre>
                 `;
             }
+        } else if (url === '/execute' && response.status === 404) {
+            const data = await response.json();
+            // Renderiza apenas a mensagem de erro
+            document.getElementById('output').innerText = "UID not found";
         } else {
             const result = await response.text();
             console.log(`Error response: ${result}`);
@@ -202,19 +216,3 @@ async function handleFormSubmit(event, url) {
     }
 }
 
-// Adicionando os eventos de submit aos formulários
-document.getElementById('commandForm1').addEventListener('submit', function (event) {
-    handleFormSubmit(event, '/execute');
-});
-
-document.getElementById('commandForm2').addEventListener('submit', function (event) {
-    handleFormSubmit(event, '/execute_dump');
-});
-
-document.getElementById('commandForm3').addEventListener('submit', function (event) {
-    handleFormSubmit(event, '/execute_clone');
-});
-
-document.getElementById('commandForm4').addEventListener('submit', function (event) {
-    handleFormSubmit(event, '/execute_wipe');
-});

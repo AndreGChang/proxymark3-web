@@ -68,10 +68,10 @@ def execute():
             return jsonify(person)
         else:
             print("UID not found")
-            return jsonify({"error": "UID Not Found"}), 404
+            return jsonify({"error_uid": "UID Not Found"}), 404
     except Exception as e:
         print(f"Error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An error occurred during the opening the door", "details": str(e)}), 500
 
 
 @app.route('/execute_dump', methods=['POST'])
@@ -157,7 +157,7 @@ def execute_dump():
         return jsonify({"part1": part1_content, "part2": part2_content}) if result.stdout else "No output from command"
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
-        return str(e), 500
+        return jsonify({"error": "An error occurred during the dumping the data", "details": str(e)}), 500
 
 
 @app.route('/execute_clone', methods=['POST'])
@@ -204,11 +204,11 @@ def execute_clone():
         result = subprocess.run(check_command, capture_output=True, text=True)
         print(result.stdout)  # Output do comando
         
-        return jsonify({"status": "Cloning successful", "result": result.stdout})
+        return jsonify({"status": "Cloning successful"})
         
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An error occurred during the Clone", "details": str(e)}), 500
 
 
 @app.route('/execute_wipe', methods=['POST'])
