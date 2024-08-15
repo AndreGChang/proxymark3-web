@@ -7,7 +7,7 @@ lock = threading.Lock()
 # Array de pessoas
 people = [
     {
-        "uid": "08 11 33 3E",
+        "uid": "00 00 00 00",
         "name": "John Doe",
         "age": 30,
         "email": "johndoe@example.com",
@@ -68,7 +68,7 @@ def execute():
             return jsonify(person)
         else:
             print("UID not found")
-            return jsonify({"error_uid": "UID Not Found"}), 404
+            return jsonify({"error": "UID Not Found"}), 404
     except Exception as e:
         print(f"Error: {str(e)}")
         return jsonify({"error": "An error occurred during the opening the door", "details": str(e)}), 500

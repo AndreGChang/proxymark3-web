@@ -7,7 +7,7 @@
     justify-content: center;
     flex-direction: column;
     min-height: 100vh;
-    background: linear-gradient(to right, #1958ea, #3cff00);
+    /* background: linear-gradient(to right, #1958ea, #3cff00); */
 }
 
 .section-main {
@@ -17,7 +17,7 @@
     justify-content: center;
 }
 
-.side-left {
+/* .side-left {
     background: linear-gradient(to bottom, #1958ea, #5f82d4);
     width: 5%;
 }
@@ -25,7 +25,7 @@
 .side-right {
     background-color: #3cff00;
     width: 5%;
-}
+} */
 
 .container {
     display: flex;
@@ -98,7 +98,9 @@
 }
 
 .info {
-    margin-left: 20px;
+    margin-left: 3%;
+    display: flex;
+    flex-direction: column;
 }
 
 .json-section {
