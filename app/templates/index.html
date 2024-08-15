@@ -20,24 +20,24 @@
         </div>
         <div class="container">
             <div class="form-container">
-                <h1 class="title">Execute Command</h1>
+                <h1 class="title">Executar Comando</h1>
                 <div class="form-buttons">
                     <form id="commandForm1" class="form" action="{{ url_for('execute') }}" method="post">
-                        <button type="submit" class="button">Open Door</button>
+                        <button type="submit" class="button">Abrir Porta</button>
                     </form>
                     <form id="commandForm2" class="form" action="{{ url_for('execute_dump') }}" method="post">
-                        <button type="submit" class="button">Read Card</button>
+                        <button type="submit" class="button">Ler Cartão</button>
                     </form>
                     <form id="commandForm3" class="form" action="{{ url_for('execute_clone') }}" method="post">
-                        <button type="submit" class="button">Execute Clone</button>
+                        <button type="submit" class="button">Clonar</button>
                     </form>
                     <form id="commandForm4" class="form" action="{{ url_for('execute_wipe') }}" method="post">
-                        <button type="submit" class="button">Wipe Card</button>
+                        <button type="submit" class="button">Limpar Cartão</button>
                     </form>
                 </div>
             </div>
             <div class="output_div">
-                <h4>Output</h4>
+                <h4>Saida</h4>
                 <div id="output" class="output"></div>
                 <div id="loading" class="loading">
                     <div class="loader"></div>
