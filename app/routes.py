@@ -4,6 +4,10 @@ import threading
 
 lock = threading.Lock()
 
+user = "text"
+where_proxmark_is = f"/home/{user}/Documents/proxmark3/pm3"
+where_key_is = f"/home/{user}/Documents/development/proxymark3-web/hf-mf-key.bin"
+
 # Array de pessoas
 people = [
     {
@@ -11,21 +15,28 @@ people = [
         "name": "John Doe",
         "age": 30,
         "email": "johndoe@example.com",
-        "photo_path": "/static/images/Minecraft-creeper.avif"
+        "photo_path": "/static/images/avatar.jpeg"
     },
     {
         "uid": "E7 E1 9A 47",
         "name": "Andre Chang",
         "age": 39,
         "email": "andrechangn@example.com",
-        "photo_path": "/static/images/Minecraft-creeper.avif"
+        "photo_path": "/static/images/avatar.jpeg"
     },
     {
         "uid": "49 36 8A 93",
         "name": "Joao Pedro",
         "age": 20,
         "email": "joaopedro@example.com",
-        "photo_path": "/static/images/Minecraft-creeper.avif"
+        "photo_path": "/static/images/avatar.jpeg"
+    },
+        {
+        "uid": "00 00 00 00",
+        "name": "John Doe",
+        "age": 30,
+        "email": "johndoe@example.com",
+        "photo_path": "/static/images/avatar.jpeg"
     }
 ]
 
@@ -37,7 +48,7 @@ def index():
 @app.route('/execute', methods=['POST'])
 def execute():
     try:
-        result = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3","-c", "hf search"], capture_output=True, text=True)
+        result = subprocess.run([f"{where_proxmark_is}","-c", "hf search"], capture_output=True, text=True)
 
         uid_line = ""
         for line in result.stdout.splitlines():
@@ -71,14 +82,14 @@ def execute():
             return jsonify({"error": "UID Não encontrado"}), 404
     except Exception as e:
         print(f"Error: {str(e)}")
-        return jsonify({"error": "An error occurred during the opening the door", "details": str(e)}), 500
+        return jsonify({"Erro": "Um erro ocorreu ao abrir a porta", "detalhes": str(e)}), 500
 
 
 @app.route('/execute_dump', methods=['POST'])
 def execute_dump():
     try:
         
-        result_UID = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3","-c", "hf search"], capture_output=True, text=True)
+        result_UID = subprocess.run([f"{where_proxmark_is}","-c", "hf search"], capture_output=True, text=True)
 
         uid_line = ""
         for line in result_UID.stdout.splitlines():
@@ -96,52 +107,49 @@ def execute_dump():
                 file.write(f"{formatted_uid}\n")
                 print("UID added to uid_person.txt")
         except Exception as file_error:
-            print(f"Error writing to file: {str(file_error)}")
+            print(f"Erro ao escrever no arquivo: {str(file_error)}")
 
-        result = subprocess.run(["/home/text/Documents/proxymark/proxmark3/pm3", "-c","hf mf dump -k /home/text/Documents/development/proxymark/hf-mf-key.bin -f dump/teste.bin"], capture_output=True, text=True)
+        result = subprocess.run([f"{where_proxmark_is}", "-c",f"hf mf dump -k {where_key_is} -f dump/teste.bin"], capture_output=True, text=True)
     
-        full_output = result.stdout
-        print(full_output)
+        # full_output = result.stdout
+        # print(full_output)
 
-        part1_start = "[=] ................."
-        part1_end = "[+] time:"
-        part1_content = ""
+        # part1_start = "[=] ................."
+        # part1_end = "[+] time:"
+        # part1_content = ""
 
-        if part1_start in full_output and part1_end in full_output:
-            part1_content = full_output.split(
-                part1_start)[-1].split(part1_end)[0].strip()
+        # if part1_start in full_output and part1_end in full_output:
+        #     part1_content = full_output.split(
+        #         part1_start)[-1].split(part1_end)[0].strip()
 
-        separator = "[=] -----+-----+-------------------------------------------------+-----------------"
-        part2_content = ""
+        # separator = "[=] -----+-----+-------------------------------------------------+-----------------"
+        # part2_content = ""
 
-        separator_occurrences = full_output.split(separator)
-        print("Number of Separator Occurrences:", len(separator_occurrences))
+        # separator_occurrences = full_output.split(separator)
+        # print("Number of Separator Occurrences:", len(separator_occurrences))
 
-        if len(separator_occurrences) > 3:
-            # part2_content = separator + separator_occurrences[2] + separator + separator_occurrences[3].split(separator)[0].strip()
-            # part2_header = separator + separator_occurrences[1] + separator + separator_occurrences[1].split(separator)[0].strip()
+        # if len(separator_occurrences) > 3:
+        #     # part2_content = separator + separator_occurrences[2] + separator + separator_occurrences[3].split(separator)[0].strip()
+        #     # part2_header = separator + separator_occurrences[1] + separator + separator_occurrences[1].split(separator)[0].strip()
             
-            part2_header = "[=] -----+-----+-------------------------------------------------+-----------------\n[=]  sec | blk | data                                            | ascii           \n"
+        #     part2_header = "[=] -----+-----+-------------------------------------------------+-----------------\n[=]  sec | blk | data                                            | ascii           \n"
 
-            relevant_content = part2_header + separator + separator_occurrences[2] + separator + separator_occurrences[3]
-            part2_content = relevant_content.split("[+] Saved")[0].strip()
+        #     relevant_content = part2_header + separator + separator_occurrences[2] + separator + separator_occurrences[3]
+        #     part2_content = relevant_content.split("[+] Saved")[0].strip()
 
-            print("Part 2 Content:")
-            print(part2_content)  # Log de depuração para part2
+        #     print("Part 2 Content:")
+        #     print(part2_content)  # Log de depuração para part2
 
-            # print("Part 2 Header:")
-            # print(part2_header)
-        else:
-            print("Separator not found enough times in the output.")
-
-        # Defina o usuário que irá executar o comando
-        user = "text"
+        #     # print("Part 2 Header:")
+        #     # print(part2_header)
+        # else:
+        #     print("Separator not found enough times in the output.")
 
         # Comando a ser executado
         find_command = [
             "sudo",
             "-u", user,
-            "find", "/home/text/dump", "-name", "test.bin", "-type", "f", "-delete"
+            "find", f"/home/{user}/dump", "-name", "test.bin", "-type", "f", "-delete"
         ]
 
         # Procurar e deletar o arquivo test.bin
@@ -154,10 +162,11 @@ def execute_dump():
         else:
             print(f"Erro ao deletar arquivo: {find_result.stderr}")
 
-        return jsonify({"part1": part1_content, "part2": part2_content}) if result.stdout else "No output from command"
+        return jsonify({"return":"A leitura do cartão foi feita com sucesso"}) if result.stdout else "Sem saida do comando"
+        # return jsonify({"part1": part1_content, "part2": part2_content}) if result.stdout else "No output from command"
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
-        return jsonify({"error": "An error occurred during the dumping the data", "details": str(e)}), 500
+        return jsonify({"error": "Um erro ocorreu durante a extração dos dados", "detalhes": str(e)}), 500
 
 
 @app.route('/execute_clone', methods=['POST'])
@@ -170,9 +179,9 @@ def execute_clone():
 
         # Comando para clonar os dados do cartão
         clone_command_data = [
-            "/home/text/Documents/proxymark/proxmark3/pm3",
+            f"{where_proxmark_is}",
             "-c",
-            f"hf mf restore -k /home/text/Documents/development/proxymark/hf-mf-key.bin -f dump/teste.bin"
+            f"hf mf restore -k {where_key_is} -f dump/teste.bin"
         ]
         
         # Executar o comando de restauração
@@ -183,7 +192,7 @@ def execute_clone():
         
         # Comando para alterar o UID do cartão
         clone_command_uid = [
-            "/home/text/Documents/proxymark/proxmark3/pm3",
+            f"{where_proxmark_is}",
             "-c",
             f"hf mf csetuid -u {last_uid}"
         ]
@@ -196,7 +205,7 @@ def execute_clone():
         
         # Verificação do cartão clonado
         check_command = [
-            "/home/text/Documents/proxymark/proxmark3/pm3",
+            f"{where_proxmark_is}",
             "-c",
             "hf mf chk"
         ]
@@ -204,11 +213,11 @@ def execute_clone():
         result = subprocess.run(check_command, capture_output=True, text=True)
         print(result.stdout)  # Output do comando
         
-        return jsonify({"status": "Cloning successful"})
+        return jsonify({"status": "Clone Realizado com Sucesso"})
         
     except Exception as e:
         print(f"Error: {str(e)}")  # Log de erro
-        return jsonify({"error": "An error occurred during the Clone", "details": str(e)}), 500
+        return jsonify({"error": "Um erro ocorreu durante o clone", "detalhes": str(e)}), 500
 
 
 @app.route('/execute_wipe', methods=['POST'])
@@ -216,9 +225,9 @@ def execute_wipe():
     try:
         # Comando para limpar o cartão usando o arquivo de chave fornecido
         wipe_command = [
-            "/home/text/Documents/proxymark/proxmark3/pm3",
+            f"{where_proxmark_is}",
             "-c",
-            "hf mf wipe -f /home/text/Documents/development/proxymark/hf-mf-key.bin"
+            f"hf mf wipe -f {where_key_is}"
         ]
 
         # Executar o comando de wipe
@@ -227,7 +236,7 @@ def execute_wipe():
 
         # Comando para alterar o UID para 00000000
         setuid_command = [
-            "/home/text/Documents/proxymark/proxmark3/pm3",
+            f"{where_proxmark_is}",
             "-c",
             "hf mf csetuid -u 00000000"
         ]
@@ -237,11 +246,11 @@ def execute_wipe():
         print("UID set to 00000000 successfully.")
 
         # Retornar uma resposta de sucesso
-        return jsonify({"status": "Wipe and UID change successful"}), 200
+        return jsonify({"status": "Cartão limpo"}), 200
 
     except subprocess.CalledProcessError as e:
         print(f"Error during wipe or UID change: {str(e)}")
-        return jsonify({"error": "An error occurred during the wipe or UID change", "details": str(e)}), 500
+        return jsonify({"erro": "Um erro ocorreu durante a troca do UID", "detalhes": str(e)}), 500
 
 @app.route('/person')
 def person():

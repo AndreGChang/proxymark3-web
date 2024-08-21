@@ -10,8 +10,9 @@
     /* background: linear-gradient(to right, #1958ea, #3cff00); */
 }
 
+
 .section-main {
-    width: 99vw;
+    width: 100vw;
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -50,10 +51,8 @@
 
 .logo-header {
     width: 150px;
-    /* Ajuste conforme necessário */
     height: auto;
     max-width: 100%;
-    border: 1px solid #f1f1f1db;
     border-radius: 5px;
 }
 
@@ -128,6 +127,7 @@
     border: none;
     border-radius: 5px;
     transition: background-color 0.3s;
+    width: 130px;
 }
 
 .form-buttons {

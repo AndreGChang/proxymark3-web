@@ -33,44 +33,44 @@ async function handleFormSubmit(event, url) {
                 `;
 
                 const jsonSection = document.createElement('div');
-                jsonSection.className = 'json-section';
-                jsonSection.innerHTML = `
-                    <pre>
-                        {
-                            "age": ${data.age},
-                            "email": "${data.email}",
-                            "name": "${data.name}",
-                            "uid": "${data.uid}",
-                            "photo_path": "${data.photo_path}"
-                        }
-                    </pre>
-                `;
+                // jsonSection.className = 'json-section';
+                // jsonSection.innerHTML = `
+                //     <pre>
+                //         {
+                //             "age": ${data.age},
+                //             "email": "${data.email}",
+                //             "name": "${data.name}",
+                //             "uid": "${data.uid}",
+                //             "photo_path": "${data.photo_path}"
+                //         }
+                //     </pre>
+                // `;
 
                 // Adicionar as seções ao outputDiv
                 outputDiv.innerHTML = ''; // Limpa conteúdo anterior (se aplicável)
                 outputDiv.appendChild(detailsSection);
-                outputDiv.appendChild(jsonSection);
+                // outputDiv.appendChild(jsonSection);
 
             } else if (url === '/execute_dump') {
-                // Criar a seção principal
+                // // Criar a seção principal
                 const section = document.createElement('section');
                 section.className = 'card-output';
 
-                // Criar as duas divs
+                // // Criar as duas divs
                 const divLeft = document.createElement('div');
-                const divRight = document.createElement('div');
+                // const divRight = document.createElement('div');
                 divLeft.className = 'left-output';
-                divRight.className = 'right-output';
+                // divRight.className = 'right-output';
 
-                // Inserir os textos nas divs
-                divLeft.innerHTML = `<pre>${data.part1}</pre>`;
-                divRight.innerHTML = `<pre>${data.part2}</pre>`;
+                // // Inserir os textos nas divs
+                divLeft.innerHTML = `<pre>${data.return}</pre>`;
+                // divRight.innerHTML = `<pre>${data.part2}</pre>`;
 
-                // Adicionar as divs à seção
+                // // Adicionar as divs à seção
                 section.appendChild(divLeft);
-                section.appendChild(divRight);
+                // section.appendChild(divRight);
 
-                // Adicionar a seção ao outputDiv
+                // // Adicionar a seção ao outputDiv
                 outputDiv.appendChild(section);
 
             } else if (url === '/execute_clone' || url === '/execute_wipe') {
